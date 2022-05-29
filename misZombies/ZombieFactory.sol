@@ -2,6 +2,8 @@ pragma solididy ^0.4.19
 
 contract ZombieFactory {
 
+  event NewZombie(uint zombieId, string name, uint dna);
+
   uint dnaDigits = 16;
   uint dnaModulus = 10 ** dnaDigits;
 
@@ -11,6 +13,9 @@ contract ZombieFactory {
   }
 
   Zombie[] public zombies;
+
+  mapping (uint => address) public zombieToOwner;
+  mapping (address => uint) ownerZombieCount;
 
   function _createZombie(string _name, uint _dna) private{
     uint id = zombies.push(Zombie(_name, _dna)) -1;

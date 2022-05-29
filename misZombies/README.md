@@ -48,27 +48,26 @@ Con arrow function seria así:
 
 Ethereum tiene una librería Javascript
 
-`
-//Así es como accederemos a nuestro contrato:
+`//Así es como accederemos a nuestro contrato:`
 
-var abi = /* abi generado por el compilador */
+`var abi = /* abi generado por el compilador */`
 
-var ZombieFactoryContract = web3.eth.contract(abi);
+`var ZombieFactoryContract = web3.eth.contract(abi);`
 
-var contractAddress = /* Nuestra dirección del contrato en Ethereum después de implementarlo*/
+`var contractAddress = /* Nuestra dirección del contrato en Ethereum después de implementarlo*/`
 
-/* ZombieFactory ha accedido a las funciones y eventos públicos de nuestro contrato*/
+`/* ZombieFactory ha accedido a las funciones y eventos públicos de nuestro contrato*/`
 
-var ZombieFactory= ZombieFactoryContract.at(contractAddress);
+`var ZombieFactory= ZombieFactoryContract.at(contractAddress);`
 
-// Algunos eventos están escuchando para recoger el valor del texto:
+`// Algunos eventos están escuchando para recoger el valor del texto:`
 
-$("#ourButton").click(function(e){
-    var name = $("#nameInput").val();
+`$("#ourButton").click(function(e){
+    var name = $("#nameInput").val();`
 
-    //Llama a la función createRandomZombie de nuestro contrato:
-    ZombieFactory.createRandomZombie(name);
-});
+`//Llama a la función createRandomZombie de nuestro contrato:`
+    `ZombieFactory.createRandomZombie(name);
+});`
 
 // Escucha al evento de NewZombie, y actualiza la interfaz
 var event = ZombieFactory.NewZombie(function(error, result)){
@@ -114,7 +113,63 @@ function generateZombie(id, name, dna){
   
       }
       return zombieDetails
-}
+}`
 
+# LECCION 2
 
-`
+***CAPITULO 1:***
+
+En la lección 1, creamos una función querecibía un nombre, lo usaba para generar un zombi aleatorio, y lo añadia a la base de datos de zombis de nuestra app guardada en la blockchain.
+
+En la lección 2, vamos hacer nuestra app más parecida a un juego: Vamos a hacerlo multijugador, y también añadiremos más diversión a la creación de zombis en vez de crearlos aleatoriamente.
+
+¿Cómo crearemos nuevos zombis? ¡ Haciendo que nuestros zombis se "alimenten" de otras formas de vidas.
+
+**Alimentando a los Zombis**
+
+Cuando un zombi se alimenta, infecta al huésped con un virus. El virus convierte al huésped en un nuevo zombi que se une a tu ejército. El nuevo ADN del zombi estará calculado del ADN del zombi original y del ADN del huésped.
+
+***CAPITULO 2: MAPEOS Y DIRECCIONES***
+
+Vamos a hcer nuestro juego multijugador dandoles a los zombis un dueño en la base de datos
+
+Para esto, vamos a necesitar dos nuevos tipos de datos: ***mapping*** y ***address***
+
+***DIRECCIONES***
+
+La blockchain de Ethereum está creada por **cuentas**, que podrían ser como cuentas bancarias. Una cuaenta tiene un balance de **Ether** (la divisa utilizada en la blockchain de Ethereum ), y puedes recibir pagos en Ether de otras cuentas, de la misma manera que tu cuenta bancaria puede hacer transferencias a otras cuentas bancarias.
+
+Cada cuenta tiene una dirección (**address**), que sería como el número de la cuenta bancaria. Es un identificador único que apuntado a una cuenta, y se asemejaría a algo así:
+**0x0cE446255506E92DF41614C46F1d6df9Cc969183**
+
+Vamos a entrar en el meollo de las direcciones en otra lección por ahora solo entender que **una dirección está asociada a un usuario específico** ( o un contrato inteligente).
+
+Así que podemos utilizarlo como identificador único para nuestros zombis. Cuando un usuario crea un nuevo zombi interectuando con nuestra app, adjudicaremos la propiedad de esos zombis a la dirección de Ethereum que ha llamado a la función.
+
+***MAPEANDO***
+
+En la Lección 1 vimos los **structs** y los **arrays**. Los **mapeos** son otra forma de organizar los datos en Solidity.
+
+Definr un **mapping** se asemajaría a esto:
+
+`//Para una aplicación financiera, guardamos un uint con el balance de su cuenta:`
+`mapping (address => uint) public accountBalance;`
+
+`// O podría usarse para guardar / ver los usuarios basados en un userId`
+`mapping(uint => string) userIdToName;`
+
+Un mapeo es esencialmente una asociación **valor-clave** para guardar y ver datos. En el primer ejemplo, la clave es un ***address*** (dirección) y el valor correspondería a un **uint**, y en el segundo ejemplo laclave es un **uint** y el valor un **string**.
+
+***CAPITULO 3: Msg.sender***
+
+Ahora que tenemos nuestros mapeos para seguir el rastro del porpietario de un zombi, queremos actualizar el método **_createZombie** para que los utilice.
+
+Para poder hacer esto, necesitamos algo llamado: **msg.sender**
+
+***msg.sender***
+
+En Solidity, hay una serie de variables globales que están disponbles para todas las funciones. Una de estas es **msg.sender**, que hace referencia a la **dirección** de la persona ( o el contrato inteligente) que ha llamado a esa función.
+
+NOTA: En SOlidity, la ejecución de una función necesita empezar con una llamada exterior. Un contrato se sentará en la blockchain sin hacer nada esperado a que alguien llame a una de sus funciones. Así que siempre habrá un **msg.sender**.
+
+Aquí tenemos un ejemplo de como usar **msg.sender** y actualizar un **mapping**
